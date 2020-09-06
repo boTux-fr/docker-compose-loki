@@ -1,0 +1,43 @@
+version: '3.7'
+
+services:
+  loki:
+    networks:
+      - net-prometheus
+
+  grafana:
+    networks:
+      - net-prometheus
+
+  prometheus:
+    image: prom/prometheus:latest
+    command:
+    - --config.file=/etc/prometheus/prometheus.yml
+    volumes:
+    - ./config/prometheus.yaml:/etc/prometheus/prometheus.yml:ro
+    depends_on:
+    - cadvisor
+    networks:
+      - net-prometheus
+
+  cadvisor:
+    image: gcr.io/google-containers/cadvisor:latest
+    volumes:
+    - /:/rootfs:ro
+    - /var/run:/var/run:rw
+    - /sys:/sys:ro
+    - /var/lib/docker/:/var/lib/docker:ro
+    depends_on:
+    - redis
+    networks:
+      - net-prometheus
+
+  redis:
+    image: redis:latest
+    networks:
+      - net-prometheus
+
+networks:
+  net-prometheus:
+    name: ${PROMETHEUS_NETWORK:-net-prometheus}
+    external: false

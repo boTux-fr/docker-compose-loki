@@ -1,0 +1,35 @@
+version: '3.7'
+
+services:
+  loki:
+    image: grafana/loki:1.6.1
+    restart: always
+    command: -config.file=/etc/loki/local-config.yaml
+    volumes:
+      - ./config/loki-config.yaml:/etc/loki/local-config.yaml
+    networks:
+      - net-loki
+
+  promtail:
+    image: grafana/promtail:1.6.1
+    restart: always
+    volumes:
+      - /var/log:/var/log
+      - ./config/promtail-config.yaml:/etc/promtail/docker-config.yaml
+    command: -config.file=/etc/promtail/docker-config.yaml
+    networks:
+      - net-loki
+
+  grafana:
+    image: grafana/grafana:latest
+    restart: always
+    volumes:
+      - grafana-data:/var/lib/grafana
+    networks:
+      - net-loki
+
+volumes:
+  grafana-data:
+
+networks:
+  net-loki:

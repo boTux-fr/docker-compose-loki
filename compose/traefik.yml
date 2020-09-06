@@ -1,0 +1,41 @@
+version: '3.7'
+
+services:
+  loki:
+    networks:
+      - ${TRAEFIK_NETWORK:-reverse-proxy}
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.services.loki.loadbalancer.server.port=3100"
+      # Http redirect
+      - "traefik.http.routers.loki-http.rule=Host(`${LOKI_DOMAIN:-loki}`)"
+      - "traefik.http.routers.loki-http.entrypoints=http"
+      - "traefik.http.routers.loki-http.middlewares=${TRAEFIK_REDIRECT_MIDDLEWARE:-redirect}"
+      # Https
+      - "traefik.http.routers.loki.rule=Host(`${LOKI_DOMAIN:-loki}`)"
+      - "traefik.http.routers.loki.entrypoints=https"
+      # Tls challenge
+      - "traefik.http.routers.loki.tls.certresolver=tlschallenge"
+
+  grafana:
+    networks:
+      - ${TRAEFIK_NETWORK:-reverse-proxy}
+    labels:
+      - "traefik.enable=true"
+      # Http redirect
+      - "traefik.http.routers.grafana-http.rule=Host(`${GRAFANA_DOMAIN:-grafana}`)"
+      - "traefik.http.routers.grafana-http.entrypoints=http"
+      - "traefik.http.routers.grafana-http.middlewares=grafana-ipwhitelist, ${TRAEFIK_REDIRECT_MIDDLEWARE:-redirect}"
+      # Https
+      - "traefik.http.routers.grafana.rule=Host(`${GRAFANA_DOMAIN:-grafana}`)"
+      - "traefik.http.routers.grafana.entrypoints=https"
+      - "traefik.http.routers.grafana.middlewares=grafana-ipwhitelist"
+      # Tls challenge
+      - "traefik.http.routers.grafana.tls.certresolver=tlschallenge"
+      # Ip whitelist
+      - "traefik.http.middlewares.grafana-ipwhitelist.ipwhitelist.sourcerange=${GRAFANA_WHITELIST:-}"
+
+networks:
+  reverse-proxy:
+    name: ${TRAEFIK_NETWORK:-reverse-proxy}
+    external: true

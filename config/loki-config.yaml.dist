@@ -1,0 +1,55 @@
+# If you want sigle tenant mode, set to false.
+# When enable, you need to set `X-Scope-OrgID` when configuring grafana.
+# For promtail included in this docker-compose you need : `X-Scope-OrgI: loki-internal`
+auth_enabled: true
+
+server:
+  http_listen_port: 3100
+
+ingester:
+  lifecycler:
+    address: 127.0.0.1
+    ring:
+      kvstore:
+        store: inmemory
+      replication_factor: 1
+    final_sleep: 0s
+  chunk_idle_period: 5m
+  chunk_retain_period: 30s
+  max_transfer_retries: 0
+
+storage_config:
+  aws:
+    # Note: use a fully qualified domain name, like localhost.
+    # full example: http://loki:supersecret@localhost.x:9000
+    # Use minio env var as set in `.env`.
+    s3: https://!MinioLokiAccesKey!:!Str0ngSecretKey!@minio.127.0.0.1.xip.io/loki
+    s3forcepathstyle: true
+  cassandra:
+    addresses: cassandra,cassandra-node-1,cassandra-node-2,cassandra-node-3,cassandra-node-4
+    keyspace: loki
+    auth: false
+    #username: <username> # only applicable when auth=true
+    #password: <password> # only applicable when auth=true
+
+schema_config:
+  configs:
+    - from: 2020-07-01
+      store: cassandra
+      object_store: aws
+      schema: v11
+      index:
+        prefix: index_
+        period: 168h
+
+limits_config:
+  enforce_metric_name: false
+  reject_old_samples: true
+  reject_old_samples_max_age: 168h
+
+chunk_store_config:
+  max_look_back_period: 0s
+
+table_manager:
+  retention_deletes_enabled: false
+  retention_period: 0s

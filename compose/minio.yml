@@ -1,0 +1,152 @@
+version: '3.7'
+
+services:
+  loki:
+    depends_on:
+      - minio-1
+      - minio-2
+      - minio-3
+      - minio-4
+
+  minio-1:
+    image: minio/minio:${MINIO_VERSION:-latest}
+    volumes:
+      - minio-data-1-1:/data1
+      - minio-data-1-2:/data2
+    environment:
+      MINIO_ACCESS_KEY: ${ACCESS_KEY}
+      MINIO_SECRET_KEY: ${SECRET_KEY}
+    command: server http://minio-{1...4}:9000/data{1...2}
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.services.minio.loadbalancer.server.port=9000"
+      # Http redirect
+      - "traefik.http.routers.minio-http.rule=Host(`${MINIO_DOMAIN:-minio}`)"
+      - "traefik.http.routers.minio-http.entrypoints=http"
+      - "traefik.http.routers.minio-http.middlewares=${TRAEFIK_REDIRECT_MIDDLEWARE:-redirect}"
+      # Https
+      - "traefik.http.routers.minio.rule=Host(`${MINIO_DOMAIN:-minio}`)"
+      - "traefik.http.routers.minio.entrypoints=https"
+      # Tls challenge
+      - "traefik.http.routers.minio.tls.certresolver=tlschallenge"
+      # Ip whitelist
+      #- "traefik.http.middlewares.minio-ipwhitelist.ipwhitelist.sourcerange=${MINIO_WHITELIST:-}"
+      #- "traefik.http.routers.minio.middlewares=minio-ipwhitelist"
+    networks:
+      - reverse-proxy
+
+  minio-2:
+    image: minio/minio:${MINIO_VERSION:-latest}
+    volumes:
+      - minio-data-2-1:/data1
+      - minio-data-2-2:/data2
+    environment:
+      MINIO_ACCESS_KEY: ${ACCESS_KEY}
+      MINIO_SECRET_KEY: ${SECRET_KEY}
+    command: server http://minio-{1...4}:9000/data{1...2}
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.services.minio.loadbalancer.server.port=9000"
+      # Http redirect
+      - "traefik.http.routers.minio-http.rule=Host(`${MINIO_DOMAIN:-minio}`)"
+      - "traefik.http.routers.minio-http.entrypoints=http"
+      - "traefik.http.routers.minio-http.middlewares=${TRAEFIK_REDIRECT_MIDDLEWARE:-redirect}"
+      # Https
+      - "traefik.http.routers.minio.rule=Host(`${MINIO_DOMAIN:-minio}`)"
+      - "traefik.http.routers.minio.entrypoints=https"
+      # Tls challenge
+      - "traefik.http.routers.minio.tls.certresolver=tlschallenge"
+      # Ip whitelist
+      #- "traefik.http.middlewares.minio-ipwhitelist.ipwhitelist.sourcerange=${MINIO_WHITELIST:-}"
+      #- "traefik.http.routers.minio.middlewares=minio-ipwhitelist"
+    networks:
+      - reverse-proxy
+
+  minio-3:
+    image: minio/minio:${MINIO_VERSION:-latest}
+    volumes:
+      - minio-data-3-1:/data1
+      - minio-data-3-2:/data2
+    environment:
+      MINIO_ACCESS_KEY: ${ACCESS_KEY}
+      MINIO_SECRET_KEY: ${SECRET_KEY}
+    command: server http://minio-{1...4}:9000/data{1...2}
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.services.minio.loadbalancer.server.port=9000"
+      # Http redirect
+      - "traefik.http.routers.minio-http.rule=Host(`${MINIO_DOMAIN:-minio}`)"
+      - "traefik.http.routers.minio-http.entrypoints=http"
+      - "traefik.http.routers.minio-http.middlewares=${TRAEFIK_REDIRECT_MIDDLEWARE:-redirect}"
+      # Https
+      - "traefik.http.routers.minio.rule=Host(`${MINIO_DOMAIN:-minio}`)"
+      - "traefik.http.routers.minio.entrypoints=https"
+      # Tls challenge
+      - "traefik.http.routers.minio.tls.certresolver=tlschallenge"
+      # Ip whitelist
+      #- "traefik.http.middlewares.minio-ipwhitelist.ipwhitelist.sourcerange=${MINIO_WHITELIST:-}"
+      #- "traefik.http.routers.minio.middlewares=minio-ipwhitelist"
+    networks:
+      - reverse-proxy
+
+  minio-4:
+    image: minio/minio:${MINIO_VERSION:-latest}
+    volumes:
+      - minio-data-4-1:/data1
+      - minio-data-4-2:/data2
+    environment:
+      MINIO_ACCESS_KEY: ${ACCESS_KEY}
+      MINIO_SECRET_KEY: ${SECRET_KEY}
+    command: server http://minio-{1...4}:9000/data{1...2}
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.services.minio.loadbalancer.server.port=9000"
+      # Http redirect
+      - "traefik.http.routers.minio-http.rule=Host(`${MINIO_DOMAIN:-minio}`)"
+      - "traefik.http.routers.minio-http.entrypoints=http"
+      - "traefik.http.routers.minio-http.middlewares=${TRAEFIK_REDIRECT_MIDDLEWARE:-redirect}"
+      # Https
+      - "traefik.http.routers.minio.rule=Host(`${MINIO_DOMAIN:-minio}`)"
+      - "traefik.http.routers.minio.entrypoints=https"
+      # Tls challenge
+      - "traefik.http.routers.minio.tls.certresolver=tlschallenge"
+      # Ip whitelist
+      #- "traefik.http.middlewares.minio-ipwhitelist.ipwhitelist.sourcerange=${MINIO_WHITELIST:-}"
+      #- "traefik.http.routers.minio.middlewares=minio-ipwhitelist"
+    networks:
+      - reverse-proxy
+
+volumes:
+  minio-data-1-1:
+  minio-data-1-2:
+  minio-data-2-1:
+  minio-data-2-2:
+  minio-data-3-1:
+  minio-data-3-2:
+  minio-data-4-1:
+  minio-data-4-2:
+
+networks:
+  reverse-proxy:
+    name: ${TRAEFIK_NETWORK:-reverse-proxy}
+    external: true

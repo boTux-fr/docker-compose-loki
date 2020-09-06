@@ -1,0 +1,78 @@
+version: '3.7'
+
+services:
+  loki:
+    depends_on:
+      - cassandra
+      - cassandra-node-1
+      - cassandra-node-2
+      - cassandra-node-3
+      - cassandra-node-4
+    networks:
+      - net-cassandra
+
+  cassandra:
+    image: cassandra:3
+    restart: always
+    networks:
+      - net-cassandra
+    volumes:
+      - cassandra-data:/var/lib/cassandra
+    environment:
+      - CASSANDRA_CLUSTER_NAME=${CASSANDRA_CLUSTER_NAME:-Cassandra db cluster}
+
+  cassandra-node-1:
+    image: cassandra:3
+    restart: always
+    networks:
+      - net-cassandra
+    volumes:
+      - cassandra-data-node-1:/var/lib/cassandra
+    environment:
+      - CASSANDRA_CLUSTER_NAME=${CASSANDRA_CLUSTER_NAME:-Cassandra db cluster}
+      - CASSANDRA_SEEDS=cassandra
+
+  cassandra-node-2:
+    image: cassandra:3
+    restart: always
+    networks:
+      - net-cassandra
+    volumes:
+      - cassandra-data-node-2:/var/lib/cassandra
+    environment:
+      - CASSANDRA_CLUSTER_NAME=${CASSANDRA_CLUSTER_NAME:-Cassandra db cluster}
+      - CASSANDRA_SEEDS=cassandra
+
+  cassandra-node-3:
+    image: cassandra:3
+    restart: always
+    networks:
+      - net-cassandra
+    volumes:
+      - cassandra-data-node-3:/var/lib/cassandra
+    environment:
+      - CASSANDRA_CLUSTER_NAME=${CASSANDRA_CLUSTER_NAME:-Cassandra db cluster}
+      - CASSANDRA_SEEDS=cassandra
+
+  cassandra-node-4:
+    image: cassandra:3
+    restart: always
+    networks:
+      - net-cassandra
+    volumes:
+      - cassandra-data-node-4:/var/lib/cassandra
+    environment:
+      - CASSANDRA_CLUSTER_NAME=${CASSANDRA_CLUSTER_NAME:-Cassandra db cluster}
+      - CASSANDRA_SEEDS=cassandra
+
+volumes:
+  cassandra-data:
+  cassandra-data-node-1:
+  cassandra-data-node-2:
+  cassandra-data-node-3:
+  cassandra-data-node-4:
+
+networks:
+  net-cassandra:
+    name: ${CASSANDRA_NETWORK:-net-cassandra}
+    external: ${CASSANDRA_NETWORK_EXTERNAL:-false}
